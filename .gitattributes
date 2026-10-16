@@ -1,0 +1,5 @@
+# Script Windows sempre con fine riga CRLF, anche se clonati da Mac/Linux
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.txt text eol=crlf
+authorized_keys text eol=crlf
