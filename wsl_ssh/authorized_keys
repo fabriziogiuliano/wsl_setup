@@ -1,0 +1,4 @@
+# Chiavi pubbliche autorizzate a entrare via SSH nell'utente creato dal setup.
+# Se riusi questi script, SOSTITUISCI questa chiave con la tua (una per riga):
+# chi ha la chiave privata corrispondente entra nei PC configurati.
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM8HYPMpA38P8pkvLLa5GNzLY5/Fm0g3legvWHox+alZ lab_monitor@muse

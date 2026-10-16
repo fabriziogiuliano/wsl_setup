@@ -1,50 +1,68 @@
-# wsl_setup — agent per i PC del laboratorio
+# wsl_setup — strumenti per i PC del laboratorio
 
-Agent Windows di [lab_monitor](https://github.com/fabriziogiuliano/lab_monitor): gira su
-ogni PC del laboratorio e invia ogni 2 secondi al monitor le connessioni e il traffico del
-PC. È il PC che si collega al monitor, quindi **sul PC non serve amministratore** e non va
-aperta nessuna porta: basta che il PC raggiunga il monitor.
+Script da lanciare sui PC Windows del laboratorio, **senza amministratore**. Le due cartelle
+sono **indipendenti**: si installano, si usano e si disinstallano separatamente, e nessuna
+modifica ciò che fa l'altra.
 
-## Installazione su un PC
+| Cartella | A cosa serve | Richiede |
+|---|---|---|
+| [`monitor_agent/`](#monitor_agent--monitoraggio-della-rete) | il PC invia al [monitor](https://github.com/fabriziogiuliano/lab_monitor) il proprio traffico (esami) | solo che il PC raggiunga il monitor |
+| [`wsl_ssh/`](#wsl_ssh--accesso-ssh-a-ubuntu-in-wsl) | accesso SSH (solo a chiave) a Ubuntu in WSL su ogni PC | porta 22 aperta verso WSL (firewall gestito dall'IT) |
 
-Dall'account con cui si usa il PC:
+Per entrambe: **Code → Download ZIP** da GitHub, tasto destro sullo zip → **Estrai tutto**,
+poi entra nella cartella che ti serve.
 
-1. **Code → Download ZIP** da GitHub, poi tasto destro sullo zip → **Estrai tutto**.
-2. Doppio clic su `install.bat`. Al primo avvio chiede:
+## `monitor_agent/` — monitoraggio della rete
+
+Gira in background su ogni PC e invia ogni 2 secondi al monitor le connessioni e il
+traffico del PC. È il PC che si collega al monitor: non va aperta nessuna porta sul PC.
+
+1. Doppio clic su `install.bat`. Al primo avvio chiede:
    - l'indirizzo del monitor (invio per quello proposto, da `agent.conf.example`);
    - il **token**: `agent.token` in `app/config.yml` del monitor.
 
    Le risposte vengono salvate in `agent.conf` (escluso da git): copiando la cartella con
    `agent.conf` sugli altri PC non vengono più chieste.
-3. Il riepilogo finale deve riportare **"Report: ricevuti dal monitor"**.
+2. Il riepilogo finale deve riportare **"Report: ricevuti dal monitor"**.
 
-L'installazione copia l'agent in `%LOCALAPPDATA%\LabMonitorAgent` e lo fa partire, nascosto,
-a ogni accesso dell'utente. Rieseguirla aggiorna l'agent o la configurazione.
+L'agent viene copiato in `%LOCALAPPDATA%\LabMonitorAgent` e parte, nascosto, a ogni
+accesso dell'utente. **Disinstallazione:** `uninstall.bat` (stesso account): ferma l'agent,
+toglie l'avvio automatico e cancella la sua cartella.
 
-**Disinstallazione:** doppio clic su `uninstall.bat` (stesso account): ferma l'agent, toglie
-l'avvio automatico e cancella la cartella.
-
-## Cosa invia
-
-Ogni `interval` secondi, al server indicato in `agent.conf` (`POST /api/report`, con il token):
-
+Cosa invia, ogni `interval` secondi (`POST /api/report`, con il token):
 - `netstat -ano` — connessioni di tutti i programmi, con il nome del processo;
 - `netstat -e` — byte totali, per la banda;
 - gli IPv4 del PC;
-- `ss -tunp` della distro WSL, **solo se una distro è già in esecuzione** (le connessioni
-  di WSL2 non compaiono in `netstat`); `wsl=0` in `agent.conf` lo disattiva.
+- `ss -tunp` della distro WSL, **solo se è già in esecuzione** (le connessioni di WSL2 non
+  compaiono in `netstat`); la legge soltanto, non la avvia. `wsl=0` in `agent.conf` lo
+  disattiva.
 
-Il monitor identifica il PC dall'IP da cui arrivano i report e li analizza con le sue
-regole. Se l'agent viene chiuso, il monitor segnala il PC come disconnesso.
-
-## File
+## `wsl_ssh/` — accesso SSH a Ubuntu in WSL
 
 | File | |
 |---|---|
-| `install.bat` / `install_agent.ps1` | installazione |
-| `uninstall.bat` / `uninstall_agent.ps1` | disinstallazione |
-| `lab_agent.ps1` | l'agent |
-| `agent.conf.example` | modello di configurazione (`server`, `token`, `interval`, `name`, `wsl`) |
+| `install_ubuntu.bat` | installa Ubuntu-24.04 se manca (se c'è già non fa nulla) |
+| `setup.bat` | configura WSL per l'accesso SSH |
+| `uninstall.bat` | annulla il setup |
 
-Il vecchio setup via WSL + SSH è nella cronologia (commit `2f0fd9d`): serve solo il suo
-`uninstall.bat` per ripulire un PC dove era stato installato.
+`setup.bat`:
+1. in `%USERPROFILE%\.wslconfig` attiva il networking **mirrored** (WSL usa l'IP del PC);
+2. installa **Ubuntu-24.04** se manca (serve internet);
+3. in Ubuntu crea l'utente (default `cn`, con `sudo`), installa `openssh-server` e autorizza
+   le chiavi in [`authorized_keys`](wsl_ssh/authorized_keys): **si entra solo con la
+   chiave**, la password serve solo a `sudo`. Utente e password si possono mettere in
+   `credentials.txt` (vedi `credentials.example.txt`), altrimenti vengono chiesti;
+4. riavvia WSL e verifica che `sshd` sia attivo.
+
+`sshd` parte quando si apre Ubuntu e si ferma quando WSL si spegne. Dall'esterno il PC è
+raggiungibile solo se la porta 22 verso WSL è aperta nel firewall Hyper-V e in quello di
+Windows: con un utente standard serve l'IT.
+
+`uninstall.bat` (stesso account del setup) rimette tutto com'era usando lo stato salvato
+dal setup, **senza eliminare Ubuntu**: toglie SSH, chiavi e configurazione e ripristina
+`.wslconfig`. Per eliminare anche la distro, se l'aveva installata il setup, va lanciato da
+PowerShell con `-RemoveDistro` (cancella **tutti** i file al suo interno).
+
+> [`authorized_keys`](wsl_ssh/authorized_keys) contiene la chiave pubblica di chi mantiene
+> questo repository: se riusi questi script **sostituiscila con la tua**, altrimenti dai a
+> lui l'accesso ai tuoi PC.

@@ -1,2 +1,3 @@
-# Configurazione dell'agent: contiene il token, mai nel repository
-agent.conf
+# Contengono segreti: mai nel repository
+monitor_agent/agent.conf
+wsl_ssh/credentials.txt
