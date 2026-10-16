@@ -45,4 +45,6 @@ regole. Se l'agent viene chiuso, il monitor segnala il PC come disconnesso.
 | `uninstall.bat` / `uninstall_agent.ps1` | disinstallazione |
 | `lab_agent.ps1` | l'agent |
 | `agent.conf.example` | modello di configurazione (`server`, `token`, `interval`, `name`, `wsl`) |
-| `old_wsl_ssh/` | vecchio setup via WSL + SSH: serve solo il suo `uninstall.bat` per ripulire i PC dove era stato installato |
+
+Il vecchio setup via WSL + SSH è nella cronologia (commit `2f0fd9d`): serve solo il suo
+`uninstall.bat` per ripulire un PC dove era stato installato.
