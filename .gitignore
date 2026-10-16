@@ -1,2 +1,4 @@
-# Password dell'utente Linux: mai nel repository (vedi credentials.example.txt)
-credentials.txt
+# Configurazione dell'agent: contiene il token, mai nel repository
+agent.conf
+# Vecchio setup WSL/SSH: password dell'utente Linux
+old_wsl_ssh/credentials.txt

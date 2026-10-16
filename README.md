@@ -1,63 +1,48 @@
-# wsl_setup
+# wsl_setup — agent per i PC del laboratorio
 
-Prepara un PC Windows del laboratorio perché sia raggiungibile via SSH dentro WSL,
-**senza permessi di amministratore**, e lo rimette com'era a fine utilizzo.
-Pensato per [lab_monitor](https://github.com/fabriziogiuliano/lab_monitor), che si
-collega ai PC per monitorarne il traffico di rete.
+Agent Windows di [lab_monitor](https://github.com/fabriziogiuliano/lab_monitor): gira su
+ogni PC del laboratorio e invia ogni 2 secondi al monitor le connessioni e il traffico del
+PC. È il PC che si collega al monitor, quindi **sul PC non serve amministratore** e non va
+aperta nessuna porta: basta che il PC raggiunga il monitor.
 
-## Cosa fa `setup.bat`
+## Installazione su un PC
 
-1. In `%USERPROFILE%\.wslconfig` attiva il networking **mirrored** (WSL usa lo stesso IP
-   del PC) e `firewall=false` (il firewall Hyper-V non blocca SSH in ingresso verso WSL).
-2. Installa **Ubuntu-24.04** se manca (serve internet).
-3. In Ubuntu crea l'utente (default `cn`, con `sudo`), installa `openssh-server` e
-   autorizza le chiavi in [`authorized_keys`](authorized_keys). **Si entra solo con la
-   chiave**: il login SSH a password è disattivato, la password serve solo a `sudo`.
-4. Riavvia WSL e verifica che `sshd` sia attivo.
-
-`sshd` parte da solo quando si apre Ubuntu (systemd su WSL2, `/etc/profile.d` su WSL1) e
-si ferma quando WSL si spegne: il PC è raggiungibile finché Ubuntu resta aperto.
-
-## Uso
-
-Su ogni PC, dall'account Windows degli studenti:
+Dall'account con cui si usa il PC:
 
 1. **Code → Download ZIP** da GitHub, poi tasto destro sullo zip → **Estrai tutto**.
-2. Doppio clic su `setup.bat` e inserisci la password dell'utente Linux quando richiesta
-   (oppure mettila prima in `credentials.txt`, vedi `credentials.example.txt`).
-3. Il riepilogo finale deve riportare `sshd attivo: SI`.
+2. Doppio clic su `install.bat`. Al primo avvio chiede:
+   - l'indirizzo del monitor (invio per quello proposto, da `agent.conf.example`);
+   - il **token**: `agent.token` in `app/config.yml` del monitor.
 
-Dal monitor: `ssh -i <chiave privata> cn@<IP del PC>`.
+   Le risposte vengono salvate in `agent.conf` (escluso da git): copiando la cartella con
+   `agent.conf` sugli altri PC non vengono più chieste.
+3. Il riepilogo finale deve riportare **"Report: ricevuti dal monitor"**.
 
-Se la finestra si chiude senza mostrare nulla, lancia lo script da PowerShell:
+L'installazione copia l'agent in `%LOCALAPPDATA%\LabMonitorAgent` e lo fa partire, nascosto,
+a ogni accesso dell'utente. Rieseguirla aggiorna l'agent o la configurazione.
 
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\setup_wsl.ps1
-```
+**Disinstallazione:** doppio clic su `uninstall.bat` (stesso account): ferma l'agent, toglie
+l'avvio automatico e cancella la cartella.
 
-## Disinstallazione
+## Cosa invia
 
-Doppio clic su `uninstall.bat`, dallo **stesso account Windows** del setup. Usa lo stato
-salvato alla prima esecuzione per rimettere tutto com'era:
+Ogni `interval` secondi, al server indicato in `agent.conf` (`POST /api/report`, con il token):
 
-- se Ubuntu l'ha installata il setup viene **eliminata con tutti i file** (chiede conferma);
-- se c'era già, si annullano solo le modifiche (utente, chiavi, ssh, configurazione);
-- `.wslconfig` torna ai valori originali.
+- `netstat -ano` — connessioni di tutti i programmi, con il nome del processo;
+- `netstat -e` — byte totali, per la banda;
+- gli IPv4 del PC;
+- `ss -tunp` della distro WSL, **solo se una distro è già in esecuzione** (le connessioni
+  di WSL2 non compaiono in `netstat`); `wsl=0` in `agent.conf` lo disattiva.
 
-## Requisiti e limiti
+Il monitor identifica il PC dall'IP da cui arrivano i report e li analizza con le sue
+regole. Se l'agent viene chiuso, il monitor segnala il PC come disconnesso.
 
-- WSL già installato (installarlo la prima volta richiede un amministratore).
-- Il mirror richiede **Windows 11 22H2+** e WSL2. Con **WSL1** (es. PC o VM senza
-  virtualizzazione) WSL usa già l'IP del PC, ma la porta 22 resta dietro il firewall di
-  Windows: serve un amministratore per aprirla.
-- Una policy dell'IT può impedire `firewall=false`: in quel caso SSH resta bloccato.
+## File
 
-## Se riusi questi script
-
-[`authorized_keys`](authorized_keys) contiene la chiave pubblica di **chi mantiene questo
-repository**: sostituiscila con la tua, altrimenti dai a lui l'accesso ai tuoi PC.
-
-```bash
-ssh-keygen -t ed25519 -N "" -f ~/.ssh/lab_monitor_ed25519
-cat ~/.ssh/lab_monitor_ed25519.pub   # incollala in authorized_keys
-```
+| File | |
+|---|---|
+| `install.bat` / `install_agent.ps1` | installazione |
+| `uninstall.bat` / `uninstall_agent.ps1` | disinstallazione |
+| `lab_agent.ps1` | l'agent |
+| `agent.conf.example` | modello di configurazione (`server`, `token`, `interval`, `name`, `wsl`) |
+| `old_wsl_ssh/` | vecchio setup via WSL + SSH: serve solo il suo `uninstall.bat` per ripulire i PC dove era stato installato |

@@ -1,0 +1,10 @@
+# Configurazione dell'agent: copia questo file in agent.conf (stessa cartella).
+# server: indirizzo e porta della dashboard del monitor, raggiungibile dal PC.
+# token:  lo stesso di agent.token in app/config.yml del monitor (lab_monitor).
+# interval: secondi tra un report e l'altro.
+# name: nome mostrato nel monitor se il PC non e' in hosts.csv (default: nome del PC).
+# wsl: 1 = include le connessioni della distro WSL se in esecuzione, 0 = no.
+server=http://147.163.220.10:8080
+token=INCOLLA_QUI_IL_TOKEN
+interval=2
+wsl=1
