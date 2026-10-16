@@ -26,7 +26,7 @@ param(
     [string]$Distro       = "Ubuntu-24.04",
     # Utente Linux con cui il monitor entra via SSH: uguale su tutti i PC.
     # Se non passati qui, vengono letti da credentials.txt (accanto allo script,
-    # fuori da git: vedi credentials.example.txt) o chiesti a mano.
+    # fuori da git: vedi credentials.example.txt); altrimenti cn / cn.
     [string]$LinuxUser    = "",
     [string]$LinuxPassword = ""
 )
@@ -84,17 +84,11 @@ if (Test-Path $credFile) {
         if ($l -match '^\s*password\s*=\s*(.*?)\s*$' -and -not $LinuxPassword) { $LinuxPassword = $Matches[1] }
     }
 }
-if (-not $LinuxUser) {
-    $LinuxUser = Read-Host "Nome dell'utente Linux per il monitor [cn]"
-    if (-not $LinuxUser) { $LinuxUser = "cn" }
-}
+# Default cn/cn, senza chiedere nulla: l'accesso SSH e' solo a chiave, la
+# password serve solo a sudo. Si cambiano con credentials.txt o i parametri.
+if (-not $LinuxUser)     { $LinuxUser = "cn" }
+if (-not $LinuxPassword) { $LinuxPassword = "cn" }
 if ($LinuxUser -notmatch '^[a-z_][a-z0-9_-]*$') { Fail "nome utente Linux non valido: '$LinuxUser'" }
-if (-not $LinuxPassword) {
-    $sec = Read-Host "Password per l'utente Linux '$LinuxUser'" -AsSecureString
-    $LinuxPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
-        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($sec))
-    if (-not $LinuxPassword) { Fail "password vuota" }
-}
 # Chiave pubblica del monitor: l'accesso SSH a password viene disattivato
 $keysFile = Join-Path $PSScriptRoot "authorized_keys"
 if (-not (Test-Path $keysFile) -or -not (Get-Content $keysFile | Where-Object { $_ -match '^\s*(ssh-|ecdsa-|sk-)' })) {

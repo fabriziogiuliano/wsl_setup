@@ -16,9 +16,8 @@ modifica ciò che fa l'altra.
   di ciascuno;
 - **una parte sola:** entra nella cartella che ti serve (sotto).
 
-Al primo avvio vengono chiesti la password dell'utente Linux (se manca
-`wsl_ssh\credentials.txt`), l'indirizzo del monitor e il token (se manca
-`monitor_agent\agent.conf`). Per disinstallare si usano gli `uninstall.bat` delle due cartelle.
+L'utente Linux è `cn` con password `cn`, senza chiedere nulla; al primo avvio vengono
+chiesti solo l'indirizzo del monitor e il token (se manca `monitor_agent\agent.conf`). Per disinstallare si usano gli `uninstall.bat` delle due cartelle.
 
 ## `monitor_agent/` — monitoraggio della rete
 
@@ -56,10 +55,10 @@ Cosa invia, ogni `interval` secondi (`POST /api/report`, con il token):
 `setup.bat`:
 1. in `%USERPROFILE%\.wslconfig` attiva il networking **mirrored** (WSL usa l'IP del PC);
 2. installa **Ubuntu-24.04** se manca (serve internet);
-3. in Ubuntu crea l'utente (default `cn`, con `sudo`), installa `openssh-server` e autorizza
-   le chiavi in [`authorized_keys`](wsl_ssh/authorized_keys): **si entra solo con la
-   chiave**, la password serve solo a `sudo`. Utente e password si possono mettere in
-   `credentials.txt` (vedi `credentials.example.txt`), altrimenti vengono chiesti;
+3. in Ubuntu crea l'utente `cn` con password `cn` (con `sudo`), installa `openssh-server`
+   e autorizza le chiavi in [`authorized_keys`](wsl_ssh/authorized_keys): **si entra solo
+   con la chiave**, la password serve solo a `sudo`. Per utente e password diversi c'è
+   `credentials.txt` (vedi `credentials.example.txt`);
 4. riavvia WSL e verifica che `sshd` sia attivo.
 
 `sshd` parte quando si apre Ubuntu e si ferma quando WSL si spegne. Dall'esterno il PC è
