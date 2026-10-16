@@ -13,11 +13,12 @@ modifica ciò che fa l'altra.
 
 - **tutto in una volta:** doppio clic su **`install.bat`** nella cartella principale. Esegue
   il setup di `wsl_ssh` e poi l'installazione di `monitor_agent`, e alla fine riporta l'esito
-  di ciascuno;
+  di ciascuno. Per togliere tutto: **`uninstall.bat`**, sempre nella cartella principale
+  (Ubuntu e i suoi file restano);
 - **una parte sola:** entra nella cartella che ti serve (sotto).
 
 L'utente Linux è `cn` con password `cn`, senza chiedere nulla; al primo avvio vengono
-chiesti solo l'indirizzo del monitor e il token (se manca `monitor_agent\agent.conf`). Per disinstallare si usano gli `uninstall.bat` delle due cartelle.
+chiesti solo l'indirizzo del monitor e il token (se manca `monitor_agent\agent.conf`).
 
 ## `monitor_agent/` — monitoraggio della rete
 
