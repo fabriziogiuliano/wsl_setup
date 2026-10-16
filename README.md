@@ -9,8 +9,16 @@ modifica ciò che fa l'altra.
 | [`monitor_agent/`](#monitor_agent--monitoraggio-della-rete) | il PC invia al [monitor](https://github.com/fabriziogiuliano/lab_monitor) il proprio traffico (esami) | solo che il PC raggiunga il monitor |
 | [`wsl_ssh/`](#wsl_ssh--accesso-ssh-a-ubuntu-in-wsl) | accesso SSH (solo a chiave) a Ubuntu in WSL su ogni PC | porta 22 aperta verso WSL (firewall gestito dall'IT) |
 
-Per entrambe: **Code → Download ZIP** da GitHub, tasto destro sullo zip → **Estrai tutto**,
-poi entra nella cartella che ti serve.
+**Code → Download ZIP** da GitHub, tasto destro sullo zip → **Estrai tutto**, poi:
+
+- **tutto in una volta:** doppio clic su **`install.bat`** nella cartella principale. Esegue
+  il setup di `wsl_ssh` e poi l'installazione di `monitor_agent`, e alla fine riporta l'esito
+  di ciascuno;
+- **una parte sola:** entra nella cartella che ti serve (sotto).
+
+Al primo avvio vengono chiesti la password dell'utente Linux (se manca
+`wsl_ssh\credentials.txt`), l'indirizzo del monitor e il token (se manca
+`monitor_agent\agent.conf`). Per disinstallare si usano gli `uninstall.bat` delle due cartelle.
 
 ## `monitor_agent/` — monitoraggio della rete
 
