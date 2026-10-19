@@ -6,21 +6,23 @@ modifica ciò che fa l'altra.
 
 | Cartella | A cosa serve | Richiede |
 |---|---|---|
-| [`monitor_agent/`](#monitor_agent--monitoraggio-della-rete) | il PC invia al [monitor](https://github.com/fabriziogiuliano/lab_monitor) il proprio traffico (esami) | solo che il PC raggiunga il monitor |
-| [`wsl_ssh/`](#wsl_ssh--accesso-ssh-a-ubuntu-in-wsl) | accesso SSH (solo a chiave) a Ubuntu in WSL su ogni PC | porta 22 aperta verso WSL (firewall gestito dall'IT) |
+| [`wsl_ssh/`](#wsl_ssh--accesso-ssh-a-ubuntu-in-wsl) | accesso SSH (solo a chiave) a Ubuntu in WSL su ogni PC: lo usa il [monitor](https://github.com/fabriziogiuliano/lab_monitor) e serve per l'accesso remoto | porta 22 aperta verso WSL (firewall gestito dall'IT) |
+| [`monitor_agent/`](#monitor_agent--monitoraggio-della-rete) | **disattivato**: agent HTTP che invia il traffico al monitor (alternativa senza porte in ingresso), non installato da `install.bat` | solo che il PC raggiunga il monitor |
 
 **Code → Download ZIP** da GitHub, tasto destro sullo zip → **Estrai tutto**, poi:
 
-- **tutto in una volta:** doppio clic su **`install.bat`** nella cartella principale. Esegue
-  il setup di `wsl_ssh` e poi l'installazione di `monitor_agent`, e alla fine riporta l'esito
-  di ciascuno. Per togliere tutto: **`uninstall.bat`**, sempre nella cartella principale
-  (Ubuntu e i suoi file restano);
+- **installazione:** doppio clic su **`install.bat`** nella cartella principale: esegue il
+  setup di `wsl_ssh`. Per togliere tutto: **`uninstall.bat`**, sempre nella cartella
+  principale; rimuove anche l'agent se era stato installato in passato (Ubuntu e i suoi
+  file restano);
 - **una parte sola:** entra nella cartella che ti serve (sotto).
 
-L'utente Linux è `cn` con password `cn`, senza chiedere nulla; al primo avvio vengono
-chiesti solo l'indirizzo del monitor e il token (se manca `monitor_agent\agent.conf`).
+L'utente Linux è `cn` con password `cn`: l'installazione non chiede nulla.
 
-## `monitor_agent/` — monitoraggio della rete
+## `monitor_agent/` — monitoraggio della rete (disattivato)
+
+Non viene installato da `install.bat`: resta disponibile come alternativa per i PC che
+non accettano connessioni in ingresso (richiede il monitor sul branch `agent-push`).
 
 Gira in background su ogni PC e invia ogni 2 secondi al monitor le connessioni e il
 traffico del PC. È il PC che si collega al monitor: non va aperta nessuna porta sul PC.
