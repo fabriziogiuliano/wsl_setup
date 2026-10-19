@@ -2,7 +2,7 @@
 rem Prepara il PC con un doppio clic e senza amministratore: Ubuntu in WSL
 rem raggiungibile via SSH (solo con chiave), per il monitor via SSH e per
 rem l'accesso remoto. Esegue il setup di wsl_ssh.
-rem L'agent HTTP (monitor_agent) e' disattivato: non viene installato.
+
 set "ROOT=%~dp0"
 if not exist "%ROOT%wsl_ssh\setup_wsl.ps1" goto :noextract
 

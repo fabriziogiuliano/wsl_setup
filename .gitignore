@@ -1,3 +1,2 @@
-# Contengono segreti: mai nel repository
-monitor_agent/agent.conf
+# Contiene la password: mai nel repository
 wsl_ssh/credentials.txt
